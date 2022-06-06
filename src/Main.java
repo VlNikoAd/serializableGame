@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class Main {
@@ -17,6 +18,8 @@ public class Main {
         saveGame(gameProgress1, gameProgress2, gameProgress3);
         zipFiles();
         deleteSaveGame();
+        openZip();
+        openProgress();
     }
 
     private static void saveGame(GameProgress gameProgress1, GameProgress gameProgress2, GameProgress gameProgress3) {
@@ -66,5 +69,35 @@ public class Main {
         for (File item : myFile.listFiles()) {
             item.delete();
         }
+    }
+
+    private static void openZip() {
+        try (ZipInputStream zis = new ZipInputStream(
+                new FileInputStream("/Users/vladislav/Games/zip_output.zip"))) {
+            ZipEntry entry;
+            String name;
+            while ((entry = zis.getNextEntry()) != null) {
+                name = entry.getName();
+                FileOutputStream fout = new FileOutputStream(name);
+                for (int c = zis.read(); c != -1; c = zis.read()) {
+                    fout.write(c);
+                }
+                fout.flush();
+                zis.closeEntry();
+                fout.close();
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+    private static void openProgress() {
+        GameProgress gameProgress = null;
+        try (FileInputStream fis = new FileInputStream("/Users/vladislav/Games/savegames/save1.dat");
+        ObjectInputStream ois = new ObjectInputStream(fis)) {
+            gameProgress = (GameProgress) ois.readObject();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        System.out.println(gameProgress);
     }
 }
