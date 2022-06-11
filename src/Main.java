@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -14,34 +16,24 @@ public class Main {
                 new GameProgress(50, 6, 3, 300.44);
         GameProgress gameProgress3 =
                 new GameProgress(75, 5, 4, 300.44);
+        List<GameProgress> mySave = Arrays.asList(gameProgress1, gameProgress2, gameProgress3);
 
-        saveGame(gameProgress1, gameProgress2, gameProgress3);
+        saveGame(mySave);
         zipFiles();
         deleteSaveGame();
         openZip();
         openProgress();
     }
 
-    private static void saveGame(GameProgress gameProgress1, GameProgress gameProgress2, GameProgress gameProgress3) {
-        try (FileOutputStream fos = new FileOutputStream("/Users/vladislav/Games/savegames/save1.dat");
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(gameProgress1);
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-
-        try (FileOutputStream fos = new FileOutputStream("/Users/vladislav/Games/savegames/save2.dat");
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(gameProgress2);
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-
-        try (FileOutputStream fos = new FileOutputStream("/Users/vladislav/Games/savegames/save3.dat");
-             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            oos.writeObject(gameProgress3);
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+    private static void saveGame(List<GameProgress> mySave) {
+        List<String> nameFiles = Arrays.asList("save1.dat", "save2.dat", "save3.dat");
+        for (int i = 0; i < nameFiles.size(); i++) {
+            try (FileOutputStream fos = new FileOutputStream("/Users/vladislav/Games/savegames/" + nameFiles.get(i));
+                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+                oos.writeObject(mySave.get(i));
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
         }
     }
 
@@ -90,10 +82,11 @@ public class Main {
             System.out.println(ex.getMessage());
         }
     }
+
     private static void openProgress() {
         GameProgress gameProgress = null;
         try (FileInputStream fis = new FileInputStream("/Users/vladislav/Games/savegames/save1.dat");
-        ObjectInputStream ois = new ObjectInputStream(fis)) {
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
             gameProgress = (GameProgress) ois.readObject();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
